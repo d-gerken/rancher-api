@@ -1,0 +1,15 @@
+{
+  "name": "nilson89/rancher-api",
+  "type": "project",
+  "description": "Symfony console app for using Rancher-API",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Niels Maseberg",
+      "email": "nielsmaseberg@hotmail.com"
+    }
+  ],
+  "require": {
+    "symfony/console": "^3.2"
+  }
+}
