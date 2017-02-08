@@ -3,6 +3,7 @@
 namespace RancherApi\Client;
 
 use GuzzleHttp\Exception\ClientException;
+use RancherApi\Exception\BadContentException;
 
 class Client
 {
@@ -55,12 +56,18 @@ class Client
      * @param string $path
      * @param string $method
      * @param array $options
-     * @return string
+     * @return array
      */
     protected function request($path, $method = 'GET', array $options = [])
     {
         /* Add auth-data to options array */
         $options['auth'] = [$this->accessKey, $this->secretKey];
+
+        /* Filter method */
+        if (substr($path, 0, 1) != '/') {
+            $path = '/' . $path;
+        }
+        $path = 'v2-beta' . $path;
 
         /* Trigger request and return response as string */
         try {
@@ -76,6 +83,13 @@ class Client
                     throw new \Exception($exception->getMessage());
             }
         }
-        return $response->getBody()->getContents();
+
+        /* Decode json response */
+        $body = $response->getBody()->getContents();
+        $data = json_decode($body, true);
+        if (!$data) {
+            throw new BadContentException('Response could not be decoded');
+        }
+        return $data;
     }
 }

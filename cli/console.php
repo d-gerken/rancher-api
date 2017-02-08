@@ -13,8 +13,8 @@ $application = new Application();
 
 /* Add global options */
 $application->getDefinition()->addOptions([
-    new InputOption('access-key', '-ac', InputOption::VALUE_REQUIRED, 'Access-Key for Rancher-Api'),
-    new InputOption('secret-key', '-sc', InputOption::VALUE_REQUIRED, 'Secret-Key for Rancher-Api')
+    new InputOption('access-key', '-ak', InputOption::VALUE_REQUIRED, 'Access-Key for Rancher-Api'),
+    new InputOption('secret-key', '-sk', InputOption::VALUE_REQUIRED, 'Secret-Key for Rancher-Api')
 ]);
 
 /* Add global arguments */
