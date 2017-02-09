@@ -38,6 +38,7 @@ class Client
 
     /**
      * @var string $path
+     * @return array
      */
     public function get($path = '/')
     {
@@ -45,11 +46,56 @@ class Client
     }
 
     /**
-     *
+     * @param string $path
+     * @param array $data
+     * @return array
      */
-    public function post()
+    public function post($path = '/', array $data = [])
     {
+        /* Set data to json-array */
+        $options['json'] = $data;
 
+        return $this->request($path, 'POST', $options);
+    }
+
+    /**
+     * @param string $url
+     * @param string $token
+     */
+    public function runWebsocket($url, $token)
+    {
+        /* Prepare header */
+        $header = "Authorization: Bearer " . $token;
+
+        /* Filter url */
+        $url = str_replace("ws://", "", $url);
+
+        /* Connect to socket */
+        $socket = fsockopen($url, -1, $errno, $errstr);
+        if (!$socket) {
+            var_dump($errno);
+            var_dump($errstr);
+            return false;
+        }
+
+        /* Send data */
+        if (!fwrite($socket, $header)) {
+            var_dump('error');
+            fclose($socket);
+            return;
+        }
+
+        /* Get response */
+        $response = fread($socket, 5);
+        #while (!feof($socket)) {
+        #    $response.= fgets($socket, 128);
+        #}
+
+        /* Close socket */
+        fclose($socket);
+
+        /* Return output */
+        var_dump($response);
     }
 
     /**

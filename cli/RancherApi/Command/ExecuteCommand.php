@@ -121,7 +121,17 @@ class ExecuteCommand extends AbstractCommand
         $output->writeln('Instance-ID: ' . $instanceId);
 
         /* Send command to instance */
-        # ToDo
+        $response = $this->client->post('/projects/' . $envId . '/containers/' . $instanceId . '?action=execute', [
+            'attachStdin' => true,
+            'attachStdout' => true,
+            'command' => [
+                'ls -al'
+            ],
+            'tty' => true
+        ]);
+
+        /* Grab token and url to run websocket command */
+        $this->client->runWebsocket($response['url'], $response['token']);
     }
 
     /**
