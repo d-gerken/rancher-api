@@ -120,14 +120,12 @@ class ExecuteCommand extends AbstractCommand
         }
         $output->writeln('Instance-ID: ' . $instanceId);
 
+        $command = explode(" ", $cmd);
         /* Send command to instance */
         $response = $this->client->post('/projects/' . $envId . '/containers/' . $instanceId . '?action=execute', [
             'attachStdin' => true,
             'attachStdout' => true,
-            'command' => [
-                "ls",
-                "-alh"
-            ],
+            'command' => $command,
             'tty' => true
         ]);
 
