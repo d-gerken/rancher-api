@@ -125,8 +125,8 @@ class ExecuteCommand extends AbstractCommand
             'attachStdin' => true,
             'attachStdout' => true,
             'command' => [
-                "php",
-                "./pimcore/cli/console.php"
+                "ls",
+                "-alh"
             ],
             'tty' => true
         ]);

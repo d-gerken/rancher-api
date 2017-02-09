@@ -69,13 +69,23 @@ class Client
         list($host, $port) = explode(":", $socket);
         $webSocketClient = new WebSocketClient($host, $port, $path, false, $token);
         $webSocketClient->connect();
+        while($data = $webSocketClient->read())
+        {
+            if($data['type'] == "text")
+            {
+                echo base64_decode($data['payload']);
+            }
+        }
+        $webSocketClient->close();
     }
 
     /**
-     * @param string $path
+     * @param $path
      * @param string $method
      * @param array $options
-     * @return array
+     * @return mixed
+     * @throws BadContentException
+     * @throws \Exception
      */
     protected function request($path, $method = 'GET', array $options = [])
     {
