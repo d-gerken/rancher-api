@@ -64,38 +64,11 @@ class Client
      */
     public function runWebsocket($url, $token)
     {
-        /* Prepare header */
-        $header = "Authorization: Bearer " . $token;
-
-        /* Filter url */
         $url = str_replace("ws://", "", $url);
-
-        /* Connect to socket */
-        $socket = fsockopen($url, -1, $errno, $errstr);
-        if (!$socket) {
-            var_dump($errno);
-            var_dump($errstr);
-            return false;
-        }
-
-        /* Send data */
-        if (!fwrite($socket, $header)) {
-            var_dump('error');
-            fclose($socket);
-            return;
-        }
-
-        /* Get response */
-        $response = fread($socket, 5);
-        #while (!feof($socket)) {
-        #    $response.= fgets($socket, 128);
-        #}
-
-        /* Close socket */
-        fclose($socket);
-
-        /* Return output */
-        var_dump($response);
+        list($socket, $path) = preg_split("@(?=/)@", $url, 2, PREG_SPLIT_DELIM_CAPTURE);
+        list($host, $port) = explode(":", $socket);
+        $webSocketClient = new WebSocketClient($host, $port, $path, false, $token);
+        $webSocketClient->connect();
     }
 
     /**
