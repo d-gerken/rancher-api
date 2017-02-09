@@ -61,7 +61,7 @@ class WebSocketClient
         $opcode = $firstByte & chr(0xF);
         $secondByte = @fread($this->socket, 1); // MASK 1Bit + PAYLOAD LEN (7Bit)
         $mask = $secondByte & chr(0x80);
-        if($mask == 0x01 || $opcode === chr(0x08)) // RFC "The client must close a connection if it detects a masked frame." or termination byte sent
+        if($mask == chr(0x01) || $opcode === chr(0x08)) // RFC "The client must close a connection if it detects a masked frame." or termination byte sent
         {
             @fclose($this->socket);
             return false;
@@ -94,23 +94,11 @@ class WebSocketClient
         }
 
         $payloadLength = chr(0x7F) & $secondByte;
-        if($payloadLength === chr(0x7E)) // eq. 126 Bytes
-        {
-            $payloadLength = @fread($this->socket, 2);
-            //$bytesToRead = @array_shift(unpack("C*", $payloadLength));
-            $bytesToRead = hexdec(bin2hex($payloadLength));
-        }else if ($payloadLength === chr(0x7F)) // eq. 127 Bytes
-        {
-            $payloadLength = @fread($this->socket, 8);
-            //$bytesToRead = @array_shift(unpack("C*", $payloadLength));
-            $bytesToRead = hexdec(bin2hex($payloadLength));
+        // If 126, the following 2 bytes are the payload length. If 127 thw following8 byte are the payload length.
+        $offset = (($payloadLength === chr(0x7E)) ? 2 : ($payloadLength === chr(0x7F) ? 8 : NULL));
+        $payloadLength = ($offset) ? @fread($this->socket, $offset) : $payloadLength;
 
-        }else if($payloadLength < chr(0x7E)) // Smaller than 126 Bytes
-        {
-            //$bytesToRead = @array_shift(unpack("C*", $payloadLength));
-            $bytesToRead = hexdec(bin2hex($payloadLength));
-        }
-
+        $bytesToRead = hexdec(bin2hex($payloadLength));
         $data['payload'] = @fread($this->socket, $bytesToRead);
         return $data;
     }
