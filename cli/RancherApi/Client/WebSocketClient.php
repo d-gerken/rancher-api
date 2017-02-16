@@ -9,19 +9,22 @@ class WebSocketClient
     private $host;
     private $port;
     private $path;
-    private $origin;
     private $token;
+    private $tls = false;
 
     private $socket;
     private $connected = false;
 
-    public function __construct($host, $port, $path, $origin = false, $token)
+    public function __construct($host, $port, $path, $token)
     {
         $this->host = $host;
         $this->port = $port;
         $this->path = $path;
-        $this->origin = $origin;
         $this->token = $token;
+        if($port === 443)
+        {
+            $this->tls = true;
+        }
     }
 
     public function connect()
@@ -35,11 +38,12 @@ class WebSocketClient
         $header .= "Host: ".$this->host.":".$this->port."\r\n";
         $header .= "\r\n";
 
-        $this->socket = fsockopen($this->host, $this->port, $errno, $errstr, 2);
-        socket_set_timeout($this->socket, 1);
+        $this->socket = fsockopen($this->tls ? "tls://" . $this->host : $this->host, $this->port, $errno, $errstr, 2);
+
+        socket_set_timeout($this->socket, 2);
         @fwrite($this->socket, $header);
 
-        $response = @fread($this->socket, 1000);
+        $response = @fread($this->socket, 1500);
         preg_match('#Sec-WebSocket-Accept:\s(.*)$#mU', $response, $matches);
         if ($matches) {
             $keyAccept = trim($matches[1]);
@@ -60,6 +64,7 @@ class WebSocketClient
         $opcode = $firstByte & chr(0xF);
         $secondByte = @fread($this->socket, 1); // MASK 1Bit + PAYLOAD LEN (7Bit)
         $mask = $secondByte & chr(0x80);
+
         if($mask == chr(0x01) || $opcode === chr(0x08)) // RFC "The client must close a connection if it detects a masked frame." or termination byte sent
         {
             @fclose($this->socket);

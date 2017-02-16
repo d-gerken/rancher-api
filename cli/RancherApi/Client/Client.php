@@ -64,10 +64,12 @@ class Client
      */
     public function runWebsocket($url, $token)
     {
-        $url = str_replace("ws://", "", $url);
+        $search = strpos($url, "wss://") >= 0 ? "wss://" : "ws://";
+        $url = str_replace($search, "", $url);
         list($socket, $path) = preg_split("@(?=/)@", $url, 2, PREG_SPLIT_DELIM_CAPTURE);
-        list($host, $port) = explode(":", $socket);
-        $webSocketClient = new WebSocketClient($host, $port, $path, false, $token);
+        @list($host, $port) = explode(":", $socket);
+        $port = $port ?? 443;
+        $webSocketClient = new WebSocketClient($host, $port, $path, $token);
         $webSocketClient->connect();
         while($data = $webSocketClient->read())
         {

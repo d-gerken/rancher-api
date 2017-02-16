@@ -114,7 +114,7 @@ class ExecuteCommand extends AbstractCommand
                 }
             }
         }
-        if (null === $instanceId) {
+        if (null === @$instanceId) {
             $output->writeln('No instance found');
             return;
         }
