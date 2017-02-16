@@ -46,7 +46,6 @@ class WebSocketClient
             $expectedResponse = base64_encode(pack('H*', sha1($key . '258EAFA5-E914-47DA-95CA-C5AB0DC85B11')));
             $this->connected = ($keyAccept === $expectedResponse) ? true : false;
         }
-        $this->i = 0;
         return $this->connected;
     }
 
