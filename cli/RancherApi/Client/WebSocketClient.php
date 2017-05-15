@@ -60,6 +60,11 @@ class WebSocketClient
          */
         $data = array();
         $firstByte = @fread($this->socket, 1); // FIN 1Bit, RSV1 1Bit, RSV2 1Bit, RSV3 1Bit, OPCODE(4Bit)
+
+	if(empty($firstByte))
+	{
+		return true;
+	}
         $fin = $firstByte & chr(0x80); // Indicates that this is the final fragment in a message.  The first fragment MAY also be the final fragment.
         $opcode = $firstByte & chr(0xF);
         $secondByte = @fread($this->socket, 1); // MASK 1Bit + PAYLOAD LEN (7Bit)
